@@ -304,14 +304,26 @@
   @keyframes arena-spin{ to{ transform:rotate(360deg); } }
   
   .hockey-puck{
-
-    position:absolute; width:24px; height:24px; 
+    /* Tashqi "arvoh" (ghost) halo — devorga urilganda vizual jihatdan
+       biroz chiqib/kesilib turishi mumkin, chunki u shaffof soya xolos,
+       TO'QNASHUV (collision) hisobiga kirmaydi. */
+    position:absolute; width:30px; height:30px;
     border-radius:50%; z-index:10;
-    background:#FFFFFF;
-    box-shadow:0 0 16px rgba(255,255,255,1), inset 0 2px 4px rgba(0,0,0,0.4);
+    background:rgba(255,255,255,0.12);
+    box-shadow:0 0 18px rgba(255,255,255,0.35);
     transform: translate(-50%, -50%);
     left:50%; top:50%; display:none;
+    pointer-events:none;
   }
+  /* Haqiqiy "+" markazi — devorga faqat SHU qism urilganda sakraydi. */
+  .hockey-puck::before,
+  .hockey-puck::after{
+    content:''; position:absolute; left:50%; top:50%;
+    background:#FFFFFF; border-radius:2px;
+    box-shadow:0 0 10px rgba(255,255,255,1), inset 0 1px 2px rgba(0,0,0,0.35);
+  }
+  .hockey-puck::before{ width:16px; height:5px; transform:translate(-50%,-50%); }
+  .hockey-puck::after{ width:5px; height:16px; transform:translate(-50%,-50%); }
   .puck-arrow {
     position: absolute; top: 50%; left: 50%;
     width: 60px; height: 4px;
@@ -1680,12 +1692,23 @@ let hockeyZoneRects = null;
 let currentUnsubscribe = null;
 let physicsInterval = null;
 let bettingCountdownInterval = null;
+// MUHIM (bug fix): faqat hockeyState.status'ni oldingi holat bilan solishtirish
+// yetarli emas edi — agar foydalanuvchi hokkey sahifasidan chiqib, o'yin hali
+// 'spinning_visual'ligida qaytib kirsa, prevStatus ham 'spinning_visual' bo'lib
+// qolgani uchun animatsiya qayta ISHGA TUSHMAS edi va tosh butunlay
+// ko'rinmay ("yo'qolib") qolardi. Shu sababli animatsiya haqiqatda
+// ishlab turganini alohida flag orqali kuzatamiz.
+let puckAnimationRunning = false;
 const BETTING_WAIT_SECONDS = 15;
 
 function initHockeyPage() {
   if (currentUnsubscribe) currentUnsubscribe();
   
   resetPuckVisual();
+  // Sahifaga har safar kirganda animatsiya "ishlamayapti" deb hisoblanadi —
+  // hatto agar server holati hali ham 'spinning_visual' bo'lsa ham, quyidagi
+  // snapshot kelganda tosh qayta ko'rsatiladi (yo'qolib qolish bugi tuzatildi).
+  puckAnimationRunning = false;
 
   // Sahifaga kirganda avval "Yuklanmoqda..." ko'rsatiladi, Firestore'dan
   // birinchi snapshot (o'yinchilar ro'yxati va rasmlari) kelgach yashiriladi.
@@ -1726,7 +1749,7 @@ function initHockeyPage() {
         bettingCountdownInterval = setInterval(updateBettingCd, 250);
       } else if (hockeyState.status === 'spinning_visual') {
         if (bettingCountdownInterval) { clearInterval(bettingCountdownInterval); bettingCountdownInterval = null; }
-        if (prevStatus !== 'spinning_visual') {
+        if (!puckAnimationRunning) {
           // MUHIM: pot va g'olibni HOZIROQ "muzlatib" olamiz. Animatsiya
           // ~9s davom etadi va bu vaqt ichida server ham raundni
           // 'cooldown'ga o'tkazib pot'ni 0'ga tushiradi — agar animatsiya
@@ -1734,6 +1757,7 @@ function initHockeyPage() {
           // u allaqachon 0 bo'lib qolgan bo'ladi (shu sabab "0 ★ yutdi"
           // ko'rinishi mumkin edi). Shuning uchun qiymatlarni shu yerda,
           // raund hali 'spinning_visual' bo'lgan paytda saqlab qo'yamiz.
+          puckAnimationRunning = true;
           hockeyRoundPotSnapshot = hockeyState.pot || 0;
           startPuckPhysicsAnimation(hockeyState.puckSeed);
         }
@@ -1761,6 +1785,8 @@ function resetPuckVisual() {
   const arrow = document.getElementById('puckArrow');
   const arena = document.getElementById('hockeyArena');
   
+  if (physicsInterval) { clearInterval(physicsInterval); physicsInterval = null; }
+  puckAnimationRunning = false;
   puck.style.display = 'none';
   arrow.style.display = 'none';
   arena.style.transform = "scale(1)"; // Zoomni tiklash
@@ -1869,7 +1895,10 @@ function startPuckPhysicsAnimation(seed) {
     const flightDuration = 7000;
     const tickMs = 1000 / 60;
     const totalSteps = Math.round(flightDuration / tickMs);
-    const rad = 3.3; // 12px/364px arenaga mos foiz radius
+    // Devorga faqat toshning "+" markazi (~8px yarim uzunlik) urilganda
+    // sakraydi — tashqi shaffof "arvoh" halo (30px) to'qnashuvga kirmaydi,
+    // shu sabab u devordan biroz "chiqib" ko'rinishi mumkin, bu tabiiy.
+    const rad = 2.2; // 8px/364px arenaga mos foiz radius ("+" yarim uzunligi)
 
     let speed = 11.5; // 24px/364px arenaga mos foiz tezlik (tezroq va ko'proq uchishi uchun oshirildi)
     let vx = Math.cos(angle * Math.PI / 180) * speed;
