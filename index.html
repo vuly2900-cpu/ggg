@@ -235,49 +235,7 @@
   }
   .game-card.hockey{background:linear-gradient(135deg,#1B3A34,#0E211D);}
   .game-card.drum{background:linear-gradient(135deg,#3A2A1B,#211508);}
-  .game-card.team-hockey{background:linear-gradient(135deg,#16283F,#0B1622);}
-  .game-card.team-roll{background:linear-gradient(135deg,#2B1B3F,#170D22);}
-
-  /* JAMOAVIY O'YINLAR (Team Hokkey / Team Roll) */
-  .team-color-card{
-    background:var(--surface); border:2px solid var(--border); border-radius:14px;
-    padding:12px; margin-bottom:10px; cursor:pointer; position:relative; overflow:hidden;
-    transition:border-color .2s ease, background .2s ease, transform .15s ease;
-  }
-  .team-color-card:active{transform:scale(.98);}
-  .team-color-card.selected{border-color:var(--gold); background:var(--surface-2);}
-  .team-color-card.locked{opacity:.55;}
-  .team-color-card .tc-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
-  .team-color-card .tc-dot{width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:8px; flex-shrink:0;}
-  .team-color-card.blue .tc-dot{background:#4A9EE8;}
-  .team-color-card.red .tc-dot{background:#E5544B;}
-  .team-color-card.green .tc-dot{background:#33C481;}
-  .team-color-card .tc-name{font-weight:700; font-size:14px; display:flex; align-items:center;}
-  .team-color-card .tc-name .tc-you{
-    font-size:10px; font-weight:700; color:#1A1400; background:var(--gold);
-    border-radius:6px; padding:1px 6px; margin-left:8px;
-  }
-  .team-color-card .tc-stars{font-family:'JetBrains Mono',monospace; color:var(--gold); font-size:13px; font-weight:700;}
-  .team-color-card .tc-bar-wrap{height:8px; background:var(--surface-2); border-radius:6px; overflow:hidden; margin-bottom:8px;}
-  .team-color-card .tc-bar{height:100%; border-radius:6px; transition:width .4s ease; width:0%;}
-  .team-color-card.blue .tc-bar{background:#4A9EE8;}
-  .team-color-card.red .tc-bar{background:#E5544B;}
-  .team-color-card.green .tc-bar{background:#33C481;}
-  .team-color-card .tc-chance{font-size:11px; color:var(--text-dim); margin-bottom:8px;}
-  .team-color-card .tc-avatars{display:flex; align-items:center; min-height:28px;}
-  .team-color-card .tc-avatars img{
-    width:28px; height:28px; border-radius:50%; object-fit:cover;
-    border:2px solid var(--surface); background:var(--surface-2); margin-left:-8px;
-  }
-  .team-color-card .tc-avatars img:first-child{margin-left:0;}
-  .team-color-card .tc-empty-hint{font-size:11px; color:var(--text-dim); min-height:28px; display:flex; align-items:center;}
-  .team-color-card.winner{border-color:var(--gold); animation:teamWinPulse 1s ease infinite;}
-  @keyframes teamWinPulse{0%,100%{box-shadow:0 0 0 rgba(232,185,35,0);} 50%{box-shadow:0 0 18px rgba(232,185,35,.55);}}
-  .team-result-banner{
-    max-height:0; overflow:hidden; opacity:0; transition:all .35s ease;
-    border-radius:12px; text-align:center; font-size:14px; border:1px solid var(--border);
-  }
-  .team-result-banner.show{max-height:120px; opacity:1; padding:14px 12px; margin-bottom:14px;}
+  .game-card.team-battle{background:linear-gradient(135deg,#3A1B24,#1F0E14);}
   .game-badge{
     display:inline-flex; align-items:center; gap:4px; align-self:flex-start;
     background:rgba(0,0,0,.35); color:var(--gold); font-size:10px; font-weight:700;
@@ -404,6 +362,50 @@
   .hockey-player-row .uname{flex:1; font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .hockey-player-row .stake{font-size:13px; color:var(--gold);}
   .hockey-player-row .chance{font-size:12px; color:var(--text-dim); width:48px; text-align:right;}
+
+  /* TEAM BATTLE (3 RANGLI ARENA) */
+  .team-color-select{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;}
+  .team-color-btn{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:var(--surface-2); border:2px solid var(--border); border-radius:12px;
+    padding:10px 4px; cursor:pointer; color:var(--text);
+  }
+  .team-color-btn .dot{width:16px; height:16px; border-radius:50%;}
+  .team-color-btn .lbl{font-size:12px; font-weight:700;}
+  .team-color-btn .tot{font-size:10px; color:var(--text-dim); font-family:'JetBrains Mono',monospace;}
+  .team-color-btn.active{border-color:var(--gold); box-shadow:0 0 0 1px var(--gold) inset;}
+  .team-color-btn[data-color="red"] .dot{background:#E5544B;}
+  .team-color-btn[data-color="green"] .dot{background:#33C481;}
+  .team-color-btn[data-color="blue"] .dot{background:#4A9EE8;}
+
+  .team-zones-container{position:absolute; inset:0; display:flex;}
+  .team-zone{
+    position:relative; height:100%; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:6px; overflow:hidden;
+    transition:width .4s ease; border-right:1px solid rgba(255,255,255,.08);
+  }
+  .team-zone:last-child{border-right:none;}
+  .team-zone[data-color="red"]{background:linear-gradient(180deg,#E5544B44,#E5544B11);}
+  .team-zone[data-color="green"]{background:linear-gradient(180deg,#33C48144,#33C48111);}
+  .team-zone[data-color="blue"]{background:linear-gradient(180deg,#4A9EE844,#4A9EE811);}
+  .team-zone .zone-lbl{font-size:11px; font-weight:700; text-transform:uppercase; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6);}
+  .team-zone .zone-amt{font-size:13px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); font-family:'JetBrains Mono',monospace;}
+  .team-zone .zone-avatars{display:flex; flex-wrap:wrap; gap:3px; justify-content:center; max-width:90%;}
+  .team-zone .zone-avatars img{width:22px; height:22px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,.5);}
+
+  .team-stone{
+    position:absolute; width:26px; height:26px; border-radius:50%; z-index:10;
+    background:radial-gradient(circle at 35% 30%, #fff, #C9CDD6 55%, #7A8091 100%);
+    box-shadow:0 0 16px rgba(255,255,255,.45), inset 0 -3px 4px rgba(0,0,0,.25);
+    transform:translate(-50%,-50%); left:50%; top:50%; display:none; pointer-events:none;
+  }
+
+  .team-player-row .badge-color{
+    width:10px; height:10px; border-radius:50%; flex-shrink:0;
+  }
+  .team-player-row .badge-color[data-color="red"]{background:#E5544B;}
+  .team-player-row .badge-color[data-color="green"]{background:#33C481;}
+  .team-player-row .badge-color[data-color="blue"]{background:#4A9EE8;}
 
   /* BARABAN (DRUM/WHEEL) O'YINI */
   .drum-arena{
@@ -571,13 +573,9 @@
       <span class="game-badge">🥁 Hit</span>
       <span class="game-name">Baraban</span>
     </div>
-    <div class="game-card team-hockey" onclick="openGame('team_hockey')">
-      <span class="game-badge">🏒 Jamoaviy</span>
-      <span class="game-name">Team Hokkey</span>
-    </div>
-    <div class="game-card team-roll" onclick="openGame('team_roll')">
-      <span class="game-badge">🎲 Jamoaviy</span>
-      <span class="game-name">Team Roll</span>
+    <div class="game-card team-battle" onclick="openGame('team_battle')">
+      <span class="game-badge">⚔️ 3 Zona</span>
+      <span class="game-name">TEAM BATTLE</span>
     </div>
     <div class="game-card case" onclick="goTo('case')">
       <span class="game-badge">🎁 24 soatda 1 marta</span>
@@ -676,84 +674,60 @@
     <div class="hockey-players" id="drumPlayersList"></div>
   </section>
 
-  <section class="page" id="page-team_hockey">
+
+  <section class="page" id="page-team_battle">
     <div class="hockey-topbar">
       <button class="hockey-back" onclick="goTo('play')">‹</button>
-      <div class="game-number-badge mono" id="team_hockeyGameNumberLabel">O'yin #1</div>
-      <button class="history-btn" onclick="openTeamGameHistory('team_hockey')" title="O'yin tarixi">🕒</button>
+      <div class="game-number-badge mono" id="teamGameNumberLabel">O'yin #1</div>
+      <button class="history-btn" onclick="openGameHistory('team_battle')" title="O'yin tarixi">🕒</button>
     </div>
-    <p class="subtitle" style="margin-bottom:12px;">Rangni tanlang, jamoangiz bilan birga g'alaba qozoning 🏒</p>
+    <div class="hockey-winner-banner" id="teamWinnerBanner"></div>
 
-    <div class="team-result-banner" id="team_hockeyResultBanner"></div>
+    <div class="hockey-arena" id="teamArena">
+      <div class="arena-loader" id="teamLoader"><div class="spin"></div><span>Yuklanmoqda...</span></div>
+      <div id="teamZones" class="team-zones-container"></div>
+      <div class="team-stone" id="teamStone"></div>
+    </div>
 
     <div class="hockey-bottombar">
       <div class="hockey-info-pill">
         <span class="lbl">Status</span>
-        <span class="val mono" id="team_hockeyCountdown">Kutish...</span>
+        <span class="val mono" id="teamCountdown">Kutish...</span>
       </div>
       <div class="hockey-info-pill">
         <span class="lbl">Bank</span>
-        <span class="val mono">★ <span id="team_hockeyPot">0</span></span>
+        <span class="val mono">★ <span id="teamPot">0</span></span>
       </div>
     </div>
-
-    <div id="team_hockeyColors"></div>
 
     <div class="hockey-bet-panel">
-      <p class="hockey-bet-label" id="team_hockeyBetLabel">Avval rangni tanlang, so'ng stars tiking (minimum 10 ★)</p>
+      <p class="hockey-bet-label">Rangni tanlang</p>
+      <div class="team-color-select" id="teamColorSelect">
+        <button class="team-color-btn active" data-color="red" onclick="teamSelectColor('red', this)">
+          <span class="dot"></span><span class="lbl">Qizil</span><span class="tot mono">★ <span id="teamTotRed">0</span></span>
+        </button>
+        <button class="team-color-btn" data-color="green" onclick="teamSelectColor('green', this)">
+          <span class="dot"></span><span class="lbl">Yashil</span><span class="tot mono">★ <span id="teamTotGreen">0</span></span>
+        </button>
+        <button class="team-color-btn" data-color="blue" onclick="teamSelectColor('blue', this)">
+          <span class="dot"></span><span class="lbl">Ko'k</span><span class="tot mono">★ <span id="teamTotBlue">0</span></span>
+        </button>
+      </div>
+      <p class="hockey-bet-label">Stars tikish (minimum 10 ★, kamida 2 rangga tikilsa 20s dan keyin o'yin boshlanadi)</p>
       <div class="hockey-amounts">
-        <button class="amt-btn active" onclick="teamSetAmount('team_hockey', 10, this)">10</button>
-        <button class="amt-btn" onclick="teamSetAmount('team_hockey', 25, this)">25</button>
-        <button class="amt-btn" onclick="teamSetAmount('team_hockey', 50, this)">50</button>
-        <button class="amt-btn" onclick="teamSetAmount('team_hockey', 75, this)">75</button>
-        <button class="amt-btn" onclick="teamSetAmount('team_hockey', 100, this)">100</button>
+        <button class="amt-btn active" onclick="teamSetAmount(10, this)">10</button>
+        <button class="amt-btn" onclick="teamSetAmount(25, this)">25</button>
+        <button class="amt-btn" onclick="teamSetAmount(50, this)">50</button>
+        <button class="amt-btn" onclick="teamSetAmount(75, this)">75</button>
+        <button class="amt-btn" onclick="teamSetAmount(100, this)">100</button>
       </div>
       <div class="hockey-custom-row">
-        <input type="number" id="team_hockeyCustomAmount" value="10" placeholder="Miqdor...">
-        <button class="btn" id="team_hockeyBetBtn" onclick="teamPlaceBet('team_hockey')">Tikish</button>
+        <input type="number" id="teamCustomAmount" value="10" placeholder="Miqdor...">
+        <button class="btn" id="teamBetBtn" onclick="teamPlaceBet()">Tikish</button>
       </div>
     </div>
+    <div class="hockey-players" id="teamPlayersList"></div>
   </section>
-
-  <section class="page" id="page-team_roll">
-    <div class="hockey-topbar">
-      <button class="hockey-back" onclick="goTo('play')">‹</button>
-      <div class="game-number-badge mono" id="team_rollGameNumberLabel">O'yin #1</div>
-      <button class="history-btn" onclick="openTeamGameHistory('team_roll')" title="O'yin tarixi">🕒</button>
-    </div>
-    <p class="subtitle" style="margin-bottom:12px;">Rangni tanlang, jamoangiz bilan birga g'alaba qozoning 🎲</p>
-
-    <div class="team-result-banner" id="team_rollResultBanner"></div>
-
-    <div class="hockey-bottombar">
-      <div class="hockey-info-pill">
-        <span class="lbl">Status</span>
-        <span class="val mono" id="team_rollCountdown">Kutish...</span>
-      </div>
-      <div class="hockey-info-pill">
-        <span class="lbl">Bank</span>
-        <span class="val mono">★ <span id="team_rollPot">0</span></span>
-      </div>
-    </div>
-
-    <div id="team_rollColors"></div>
-
-    <div class="hockey-bet-panel">
-      <p class="hockey-bet-label" id="team_rollBetLabel">Avval rangni tanlang, so'ng stars tiking (minimum 10 ★)</p>
-      <div class="hockey-amounts">
-        <button class="amt-btn active" onclick="teamSetAmount('team_roll', 10, this)">10</button>
-        <button class="amt-btn" onclick="teamSetAmount('team_roll', 25, this)">25</button>
-        <button class="amt-btn" onclick="teamSetAmount('team_roll', 50, this)">50</button>
-        <button class="amt-btn" onclick="teamSetAmount('team_roll', 75, this)">75</button>
-        <button class="amt-btn" onclick="teamSetAmount('team_roll', 100, this)">100</button>
-      </div>
-      <div class="hockey-custom-row">
-        <input type="number" id="team_rollCustomAmount" value="10" placeholder="Miqdor...">
-        <button class="btn" id="team_rollBetBtn" onclick="teamPlaceBet('team_roll')">Tikish</button>
-      </div>
-    </div>
-  </section>
-
 
   <section class="page" id="page-case">
     <div class="hockey-topbar">
@@ -876,8 +850,7 @@
         <button class="btn secondary" onclick="adminResetRatingOnly()">🏆 Reyting</button>
         <button class="btn secondary" onclick="adminResetHockeyOnly()">🏒 Hokkey (#1)</button>
         <button class="btn secondary" onclick="adminResetDrumOnly()">🎡 Baraban (#1)</button>
-        <button class="btn secondary" onclick="adminResetTeamHockeyOnly()">🏒 Team Hokkey (#1)</button>
-        <button class="btn secondary" onclick="adminResetTeamRollOnly()">🎲 Team Roll (#1)</button>
+        <button class="btn secondary" onclick="adminResetTeamBattleOnly()">⚔️ Team Battle (#1)</button>
         <button class="btn secondary" onclick="adminResetCaseCooldowns()">🎁 Case (0 dan)</button>
       </div>
     </div>
@@ -1356,13 +1329,12 @@ function goTo(pageName) {
   if (pageName === 'profile') loadProfile();
   if (pageName === 'hockey') initHockeyPage();
   if (pageName === 'drum') initDrumPage();
+  if (pageName === 'team_battle') initTeamBattlePage();
   if (pageName === 'case') initCasePage();
-  if (pageName === 'team_hockey') initTeamGamePage('team_hockey');
-  if (pageName === 'team_roll') initTeamGamePage('team_roll');
 
-  // Xokkey/Baraban sahifasidan chiqilganda realtime listenerni to'xtatib,
-  // fonda keraksiz o'qishlarning oldini olamiz.
-  if (pageName !== 'hockey' && pageName !== 'drum' && currentUnsubscribe) {
+  // Xokkey/Baraban/Team Battle sahifasidan chiqilganda realtime listenerni
+  // to'xtatib, fonda keraksiz o'qishlarning oldini olamiz.
+  if (pageName !== 'hockey' && pageName !== 'drum' && pageName !== 'team_battle' && currentUnsubscribe) {
     currentUnsubscribe();
     currentUnsubscribe = null;
   }
@@ -1370,14 +1342,6 @@ function goTo(pageName) {
     clearInterval(caseCountdownInterval);
     caseCountdownInterval = null;
   }
-  // Team Hokkey / Team Roll sahifasidan chiqilganda ham shu o'yinning
-  // realtime listeneri to'xtatiladi.
-  ['team_hockey', 'team_roll'].forEach((g) => {
-    if (pageName !== g && teamUnsubscribes[g]) {
-      teamUnsubscribes[g]();
-      teamUnsubscribes[g] = null;
-    }
-  });
 }
 
 function avatarFallback(name) {
@@ -1586,20 +1550,27 @@ async function openGameHistory(game) {
       return;
     }
 
+    const TEAM_COLOR_LABEL = { red: 'Qizil', green: 'Yashil', blue: "Ko'k" };
     let html = '';
     snap.forEach(doc => {
       const r = doc.data();
       const players = [...(r.players || [])].sort((a, b) => (b.stars || 0) - (a.stars || 0));
+      const isTeamBattle = game === 'team_battle';
+      const titleExtra = isTeamBattle ? ` — G'olib: ${TEAM_COLOR_LABEL[r.winner_color] || r.winner_color}` : '';
       html += `<div class="history-round">
-        <div class="history-round-title">O'yin #${r.game_number} — Bank: ★ ${r.pot}</div>
-        ${players.map(p => `
-          <div class="history-player-row ${p.id === r.winner_id ? 'is-winner' : ''}">
+        <div class="history-round-title">O'yin #${r.game_number} — Bank: ★ ${r.pot}${titleExtra}</div>
+        ${players.map(p => {
+          const isWinner = isTeamBattle ? (p.color === r.winner_color) : (p.id === r.winner_id);
+          const colorDot = isTeamBattle ? `<span class="badge-color" data-color="${p.color}"></span>` : '';
+          return `
+          <div class="history-player-row ${isWinner ? 'is-winner' : ''}">
             <img class="avatar" src="${p.photo || avatarFallback(p.username)}" onerror="this.src=avatarFallback('${p.username}')">
-            <div class="uname">${p.username}${p.id === r.winner_id ? ' 🏆' : ''}</div>
+            <div class="uname">${colorDot}${p.username}${isWinner ? ' 🏆' : ''}</div>
             <div class="stake mono">★${p.stars}</div>
             <div class="chance mono">${p.chance}%</div>
             <div class="won mono ${p.won ? '' : 'zero'}">${p.won ? '+' + p.won : '—'}</div>
-          </div>`).join('')}
+          </div>`;
+        }).join('')}
       </div>`;
     });
     content.innerHTML = html;
@@ -1794,22 +1765,11 @@ async function adminResetDrumOnly() {
   }
 }
 
-async function adminResetTeamHockeyOnly() {
-  if (!confirm("Faqat Team Hokkey o'yinini #1 dan qayta boshlamoqchimisiz? Boshqa hech narsaga tegilmaydi.")) return;
+async function adminResetTeamBattleOnly() {
+  if (!confirm("Faqat Team Battle o'yinini #1 dan qayta boshlamoqchimisiz? Boshqa hech narsaga tegilmaydi.")) return;
   try {
-    await callAdminAction('reset_game', { game: 'team_hockey' });
-    alert("Team Hokkey o'yini #1 dan qayta boshlandi!");
-  } catch (e) {
-    console.error(e);
-    alert("Xatolik yuz berdi!");
-  }
-}
-
-async function adminResetTeamRollOnly() {
-  if (!confirm("Faqat Team Roll o'yinini #1 dan qayta boshlamoqchimisiz? Boshqa hech narsaga tegilmaydi.")) return;
-  try {
-    await callAdminAction('reset_game', { game: 'team_roll' });
-    alert("Team Roll o'yini #1 dan qayta boshlandi!");
+    await callAdminAction('reset_game', { game: 'team_battle' });
+    alert("Team Battle o'yini #1 dan qayta boshlandi!");
   } catch (e) {
     console.error(e);
     alert("Xatolik yuz berdi!");
@@ -1844,8 +1804,7 @@ async function adminResetEverything() {
 function openGame(name) {
   if (name === 'hockey') goTo('hockey');
   else if (name === 'drum') goTo('drum');
-  else if (name === 'team_hockey') goTo('team_hockey');
-  else if (name === 'team_roll') goTo('team_roll');
+  else if (name === 'team_battle') goTo('team_battle');
   else alert("Tez orada...");
 }
 
@@ -2720,228 +2679,215 @@ function renderDrumPlayers() {
   }).join('');
 }
 
-// ==================== JAMOAVIY O'YINLAR: TEAM HOKKEY / TEAM ROLL ====================
-// Ikkalasi ham bir xil "jamoa" mexanikasiga ega: o'yinchi 3 ta rangdan
-// (ko'k/qizil/yashil) birini tanlab, o'sha rangga stars tikadi. Kamida 2 ta
-// rangga tikilgach raund boshlanadi. G'olib rang, g'olib jamoadagi har bir
-// o'yinchining ulushi va to'lov — barchasi bot.py (resolve_team_round)
-// tomonidan SERVERDA hisoblanadi, client faqat Firestore'dagi natijani
-// ko'rsatadi.
-const TEAM_COLOR_META = {
-  blue: { label: "Ko'k", emoji: '🔵' },
-  red: { label: 'Qizil', emoji: '🔴' },
-  green: { label: 'Yashil', emoji: '🟢' },
-};
-// showAvatars: true bo'lsa, rang kartasi ichida o'sha rangga eng ko'p
-// tikkan 3 ta o'yinchining profil rasmi ko'rsatiladi (Team Hokkeyda so'ralgan).
-const TEAM_UI_CONFIG = {
-  team_hockey: { showAvatars: true, waitSeconds: 20 },
-  team_roll: { showAvatars: false, waitSeconds: 20 },
-};
+// ==================== TEAM BATTLE (3 RANGLI ARENA) O'YINI ====================
+const TEAM_COLORS = ['red', 'green', 'blue'];
+const TEAM_COLOR_HEX = { red: '#E5544B', green: '#33C481', blue: '#4A9EE8' };
+const TEAM_COLOR_LABEL2 = { red: 'Qizil', green: 'Yashil', blue: "Ko'k" };
+let teamState = { status: 'idle', players: [], pot: 0, game_number: 1, colorTotals: { red: 0, green: 0, blue: 0 } };
+let teamRoundPotSnapshot = 0;
+let teamSelectedColor = 'red';
+let teamBettingCountdownInterval = null;
+let teamCooldownTimeout = null;
+let teamStoneInterval = null;
+let teamAnimationRunning = false;
+const TEAM_BETTING_WAIT_SECONDS = 20;
 
-let teamState = {
-  team_hockey: { status: 'idle', colors: {}, pot: 0, game_number: 1 },
-  team_roll: { status: 'idle', colors: {}, pot: 0, game_number: 1 },
-};
-let teamSelectedColor = { team_hockey: null, team_roll: null };
-let teamCountdownIntervals = { team_hockey: null, team_roll: null };
-let teamUnsubscribes = { team_hockey: null, team_roll: null };
-let teamResultShownFor = { team_hockey: null, team_roll: null };
+function initTeamBattlePage() {
+  if (currentUnsubscribe) currentUnsubscribe();
 
-function initTeamGamePage(game) {
-  if (teamUnsubscribes[game]) { teamUnsubscribes[game](); teamUnsubscribes[game] = null; }
+  resetTeamStoneVisual();
+  teamAnimationRunning = false;
 
-  document.getElementById(`${game}ResultBanner`).classList.remove('show');
+  const loader = document.getElementById('teamLoader');
+  if (loader) loader.classList.remove('hide');
 
-  teamUnsubscribes[game] = db.collection('games').doc(game).onSnapshot((doc) => {
-    teamState[game] = doc.exists ? doc.data() : { status: 'idle', colors: {}, pot: 0, game_number: 1 };
+  currentUnsubscribe = db.collection('games').doc('team_battle').onSnapshot((doc) => {
+    if (doc.exists) {
+      const prevStatus = teamState.status;
+      teamState = doc.data();
+      if (!teamState.colorTotals) teamState.colorTotals = { red: 0, green: 0, blue: 0 };
 
-    // Yangi raund boshlanganida (idle/betting) foydalanuvchining tanlovi
-    // avtomatik tozalanadi — lekin agar u shu raundda allaqachon biror
-    // rangga tikkan bo'lsa, o'sha rang tanlangan holatda qoladi (pastda
-    // renderTeamColors ichida aniqlanadi).
-    renderTeamGame(game);
-  }, (err) => {
-    console.error(`${game} listener xatoligi:`, err);
+      const gNum = teamState.game_number || 1;
+      document.getElementById('teamGameNumberLabel').textContent = `O'yin #${gNum}`;
+
+      renderTeamBattleArena();
+      renderTeamBattlePlayers();
+      if (loader) loader.classList.add('hide');
+
+      document.getElementById('teamPot').textContent = teamState.pot || 0;
+      document.getElementById('teamTotRed').textContent = teamState.colorTotals.red || 0;
+      document.getElementById('teamTotGreen').textContent = teamState.colorTotals.green || 0;
+      document.getElementById('teamTotBlue').textContent = teamState.colorTotals.blue || 0;
+
+      const cd = document.getElementById('teamCountdown');
+
+      if (teamState.status === 'betting') {
+        if (teamBettingCountdownInterval) clearInterval(teamBettingCountdownInterval);
+        if (teamCooldownTimeout) { clearTimeout(teamCooldownTimeout); teamCooldownTimeout = null; }
+        const startedAt = (teamState.bettingStartedAt && teamState.bettingStartedAt.toMillis)
+          ? teamState.bettingStartedAt.toMillis()
+          : Date.now();
+        const updateBettingCd = () => {
+          const elapsed = (Date.now() - startedAt) / 1000;
+          const remaining = Math.max(0, Math.ceil(TEAM_BETTING_WAIT_SECONDS - elapsed));
+          cd.textContent = `O'yin ${remaining}s da boshlanadi...`;
+        };
+        updateBettingCd();
+        teamBettingCountdownInterval = setInterval(updateBettingCd, 250);
+      } else if (teamState.status === 'spinning_visual') {
+        if (teamBettingCountdownInterval) { clearInterval(teamBettingCountdownInterval); teamBettingCountdownInterval = null; }
+        if (teamCooldownTimeout) { clearTimeout(teamCooldownTimeout); teamCooldownTimeout = null; }
+        if (!teamAnimationRunning) {
+          teamAnimationRunning = true;
+          teamRoundPotSnapshot = teamState.pot || 0;
+          startTeamStoneAnimation(teamState.teamSeed);
+        }
+      } else if (teamState.status === 'cooldown') {
+        if (teamBettingCountdownInterval) { clearInterval(teamBettingCountdownInterval); teamBettingCountdownInterval = null; }
+        cd.textContent = "Keyingi o'yin 5 soniyadan keyin boshlanadi...";
+        resetTeamStoneVisual();
+
+        // Baraban'dagi kabi: agar backend biror sababdan cooldown -> idle
+        // o'tishini o'tkazib yuborsa, sahifani ochib turgan ISTALGAN
+        // foydalanuvchi server vaqtiga asoslanib buni o'zi bajaradi.
+        if (teamCooldownTimeout) clearTimeout(teamCooldownTimeout);
+        const cooldownStartedAtMillis = (teamState.cooldownStartedAt && teamState.cooldownStartedAt.toMillis)
+          ? teamState.cooldownStartedAt.toMillis() : Date.now();
+        const elapsed = Date.now() - cooldownStartedAtMillis;
+        const remainingMs = Math.max(0, 5000 - elapsed);
+        const expectedGameNumber = teamState.game_number;
+        teamCooldownTimeout = setTimeout(async () => {
+          try {
+            const gameRef = db.collection('games').doc('team_battle');
+            await db.runTransaction(async (transaction) => {
+              const snap = await transaction.get(gameRef);
+              const data = snap.data();
+              if (!data || data.status !== 'cooldown' || data.game_number !== expectedGameNumber) return;
+              transaction.update(gameRef, { status: 'idle' });
+            });
+          } catch (e) { console.error(e); }
+        }, remainingMs + 150);
+      } else {
+        if (teamBettingCountdownInterval) { clearInterval(teamBettingCountdownInterval); teamBettingCountdownInterval = null; }
+        if (teamCooldownTimeout) { clearTimeout(teamCooldownTimeout); teamCooldownTimeout = null; }
+        cd.textContent = 'Kutish...';
+        resetTeamStoneVisual();
+      }
+    } else {
+      if (loader) loader.classList.add('hide');
+      teamState = { status: 'idle', players: [], pot: 0, game_number: 1, colorTotals: { red: 0, green: 0, blue: 0 } };
+      renderTeamBattleArena();
+      renderTeamBattlePlayers();
+    }
   });
 }
 
-function myTeamColor(game, state) {
-  const colors = state.colors || {};
-  for (const c in colors) {
-    if ((colors[c].players || []).some(p => p.id === tgUser?.id)) return c;
-  }
-  return null;
+function resetTeamStoneVisual() {
+  const stone = document.getElementById('teamStone');
+  if (teamStoneInterval) { clearInterval(teamStoneInterval); teamStoneInterval = null; }
+  teamAnimationRunning = false;
+  if (stone) stone.style.display = 'none';
 }
 
-function renderTeamGame(game) {
-  const state = teamState[game];
-  const gNum = state.game_number || 1;
-  document.getElementById(`${game}GameNumberLabel`).textContent = `O'yin #${gNum}`;
-  document.getElementById(`${game}Pot`).textContent = state.pot || 0;
-
-  const cd = document.getElementById(`${game}Countdown`);
-  if (teamCountdownIntervals[game]) { clearInterval(teamCountdownIntervals[game]); teamCountdownIntervals[game] = null; }
-
-  const myColor = myTeamColor(game, state);
-  if (myColor) teamSelectedColor[game] = myColor;
-
-  if (state.status === 'betting') {
-    const startedAt = (state.bettingStartedAt && state.bettingStartedAt.toMillis)
-      ? state.bettingStartedAt.toMillis() : Date.now();
-    const waitSeconds = TEAM_UI_CONFIG[game].waitSeconds;
-    const update = () => {
-      const elapsed = (Date.now() - startedAt) / 1000;
-      const remaining = Math.max(0, Math.ceil(waitSeconds - elapsed));
-      cd.textContent = `O'yin ${remaining}s da hal bo'ladi...`;
-    };
-    update();
-    teamCountdownIntervals[game] = setInterval(update, 250);
-  } else if (state.status === 'spinning_visual') {
-    cd.textContent = "G'olib rang aniqlandi!";
-    showTeamResult(game, state);
-  } else if (state.status === 'cooldown') {
-    cd.textContent = "Keyingi o'yin 5 soniyadan keyin boshlanadi...";
-    teamSelectedColor[game] = null;
-  } else {
-    cd.textContent = 'Kutish... (kamida 2 ta rangga tikilishi kerak)';
-  }
-
-  if (state.status === 'idle' || state.status === 'betting') {
-    teamResultShownFor[game] = null;
-  }
-
-  renderTeamColors(game, state);
-}
-
-function showTeamResult(game, state) {
-  const key = `${state.game_number}`;
-  if (teamResultShownFor[game] === key) return;
-  teamResultShownFor[game] = key;
-
-  const banner = document.getElementById(`${game}ResultBanner`);
-  const meta = TEAM_COLOR_META[state.winner_color] || { label: state.winner_color || '—', emoji: '' };
-  const myPayout = (state.winner_payouts || []).find(p => p.id === tgUser?.id);
-
-  let text = `${meta.emoji} <b>${meta.label}</b> jamoasi g'alaba qozondi!<br>Umumiy bank: ★ ${state.pot || 0}`;
-  if (myPayout && myPayout.payout > 0) {
-    text += `<br><span style="color:var(--success); font-weight:700;">Siz yutdingiz: +${myPayout.payout} ★</span>`;
-    currentUserData.balance = (currentUserData.balance || 0) + myPayout.payout;
-    document.getElementById('topBalance').textContent = currentUserData.balance;
-  } else if (myTeamColor(game, state)) {
-    text += `<br><span style="color:var(--text-dim);">Bu safar omad kulib boqmadi 😔</span>`;
-  }
-
-  banner.innerHTML = text;
-  banner.style.background = 'rgba(232,185,35,.10)';
-  banner.style.borderColor = 'var(--gold)';
-  banner.classList.add('show');
-  setTimeout(() => banner.classList.remove('show'), 8000);
-}
-
-function renderTeamColors(game, state) {
-  const wrap = document.getElementById(`${game}Colors`);
-  const colors = state.colors || {};
-  const pot = state.pot || 0;
-  const showAvatars = TEAM_UI_CONFIG[game].showAvatars;
-  const winnerColor = (state.status === 'spinning_visual') ? state.winner_color : null;
-  const myColor = myTeamColor(game, state);
-  const gameLocked = state.status === 'spinning_visual' || state.status === 'cooldown';
-
-  wrap.innerHTML = Object.keys(TEAM_COLOR_META).map((c) => {
-    const meta = TEAM_COLOR_META[c];
-    const cData = colors[c] || { stars: 0, players: [] };
-    const pct = pot > 0 ? Math.round((cData.stars / pot) * 100) : 0;
-    const isSelected = teamSelectedColor[game] === c;
-    const isWinner = winnerColor === c;
-    const isMine = myColor === c;
-    const topPlayers = [...(cData.players || [])]
-      .sort((a, b) => (b.stars || 0) - (a.stars || 0))
-      .slice(0, 3);
-
-    let avatarsHtml = '';
-    if (showAvatars) {
-      avatarsHtml = topPlayers.length
-        ? `<div class="tc-avatars">${topPlayers.map(p => `<img src="${p.photo || avatarFallback(p.username)}" onerror="this.src=avatarFallback('${p.username}')" title="${p.username}: ★${p.stars}">`).join('')}</div>`
-        : `<div class="tc-empty-hint">Hali hech kim tikmagan</div>`;
-    }
-
-    return `<div class="team-color-card ${c} ${isSelected ? 'selected' : ''} ${isWinner ? 'winner' : ''} ${gameLocked ? 'locked' : ''}" onclick="teamSelectColor('${game}','${c}')">
-      <div class="tc-top">
-        <span class="tc-name"><span class="tc-dot"></span>${meta.label}${isMine ? '<span class="tc-you">SIZ</span>' : ''}</span>
-        <span class="tc-stars">★ ${cData.stars || 0}</span>
-      </div>
-      <div class="tc-bar-wrap"><div class="tc-bar" style="width:${pct}%"></div></div>
-      <div class="tc-chance">${pct}% ehtimollik &middot; ${(cData.players || []).length} ishtirokchi</div>
-      ${avatarsHtml}
-    </div>`;
-  }).join('');
-}
-
-function teamSelectColor(game, color) {
-  const state = teamState[game];
-  if (state.status === 'spinning_visual' || state.status === 'cooldown') {
-    alert("O'yin jarayoni kutilmoqda, yangi davr boshlanishini kuting!");
-    return;
-  }
-
-  // Bir foydalanuvchi bir raundda faqat bitta jamoada bo'la oladi.
-  const myColor = myTeamColor(game, state);
-  if (myColor && myColor !== color) {
-    alert(`Siz bu davrda allaqachon "${TEAM_COLOR_META[myColor].label}" jamoasidasiz. Raund tugagach rang almashtirishingiz mumkin.`);
-    return;
-  }
-
-  teamSelectedColor[game] = color;
-  renderTeamColors(game, teamState[game]);
-}
-
-function teamSetAmount(game, v, btn) {
-  document.getElementById(`${game}CustomAmount`).value = v;
-  const panel = btn.closest('.hockey-bet-panel');
-  panel.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active'));
+function teamSelectColor(color, btn) {
+  teamSelectedColor = color;
+  document.querySelectorAll('.team-color-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
 }
 
-async function teamPlaceBet(game) {
-  const btn = document.getElementById(`${game}BetBtn`);
+function teamSetAmount(v, btn) {
+  document.getElementById('teamCustomAmount').value = v;
+  document.querySelectorAll('#page-team_battle .amt-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+// Arena kengligi bo'yicha har bir rang zonasining ulushini (foizda)
+// hisoblaydi — bot.py dagi game_logic.py: compute_team_zone_widths() bilan
+// AYNAN bir xil formula, shu tufayli tosh qayerga tushishi va zona
+// ko'rinishi har doim mos keladi.
+function computeTeamZoneWidths() {
+  const totals = teamState.colorTotals || { red: 0, green: 0, blue: 0 };
+  const total = TEAM_COLORS.reduce((s, c) => s + Math.max(totals[c] || 0, 0), 0);
+  if (total <= 0) {
+    const share = 100 / TEAM_COLORS.length;
+    return { red: share, green: share, blue: share };
+  }
+  const widths = {};
+  TEAM_COLORS.forEach(c => { widths[c] = Math.max(totals[c] || 0, 0) / total * 100; });
+  return widths;
+}
+
+function renderTeamBattleArena() {
+  const zonesEl = document.getElementById('teamZones');
+  const widths = computeTeamZoneWidths();
+  const players = teamState.players || [];
+
+  zonesEl.innerHTML = TEAM_COLORS.map(c => {
+    const colorPlayers = players.filter(p => p.color === c);
+    const amt = (teamState.colorTotals && teamState.colorTotals[c]) || 0;
+    const avatarsHtml = colorPlayers.slice(0, 8).map(p => `
+      <img src="${p.photo || avatarFallback(p.username)}" onerror="this.src=avatarFallback('${p.username}')">
+    `).join('');
+    return `
+      <div class="team-zone" data-color="${c}" style="width:${widths[c]}%;">
+        <span class="zone-lbl">${TEAM_COLOR_LABEL2[c]}</span>
+        <span class="zone-amt">★ ${amt}</span>
+        <div class="zone-avatars">${avatarsHtml}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderTeamBattlePlayers() {
+  const list = document.getElementById('teamPlayersList');
+  const players = teamState.players || [];
+  if (!players.length) {
+    list.innerHTML = '<p class="empty">Hali hech kim tikmadi</p>';
+    return;
+  }
+  list.innerHTML = players.map(p => {
+    const chance = teamState.pot ? ((p.stars / teamState.pot) * 100).toFixed(1) : '0.0';
+    return `
+      <div class="hockey-player-row team-player-row">
+        <span class="badge-color" data-color="${p.color}"></span>
+        <img class="avatar" src="${p.photo || avatarFallback(p.username)}" onerror="this.src=avatarFallback('${p.username}')">
+        <div class="uname">${p.username}</div>
+        <div class="stake mono">★ ${p.stars}</div>
+        <div class="chance mono">${chance}%</div>
+      </div>`;
+  }).join('');
+}
+
+async function teamPlaceBet() {
+  const btn = document.getElementById('teamBetBtn');
   if (btn.disabled) return;
 
-  const state = teamState[game];
-  if (state.status === 'spinning_visual' || state.status === 'cooldown') {
+  if (teamState.status === 'spinning_visual' || teamState.status === 'cooldown') {
     alert("O'yin jarayoni kutilmoqda, yangi davr boshlanishini kuting!");
     return;
   }
 
-  const color = teamSelectedColor[game];
-  if (!color) { alert("Avval rangni tanlang!"); return; }
-
-  const amount = parseInt(document.getElementById(`${game}CustomAmount`).value);
+  const amount = parseInt(document.getElementById('teamCustomAmount').value);
   if (!amount || amount < 10) { alert('Minimal tikish 10 ★'); return; }
   if (currentUserData.balance < amount) { alert("Stars yetarli emas!"); return; }
 
   btn.disabled = true;
 
-  // MUHIM: balans, jamoaga qo'shilish va g'olibni aniqlash butunlay
-  // serverda (bot.py: handle_place_team_bet / resolve_team_round) amalga
-  // oshadi — client faqat natijani ko'rsatadi.
+  // MUHIM: balans, rang bo'yicha jamlanma (colorTotals) va g'olibni
+  // aniqlash BUTUNLAY serverda (bot.py: handle_place_team_bet /
+  // resolve_team_battle_round) amalga oshadi — client faqat animatsiyani
+  // ko'rsatadi.
   try {
     const res = await fetch(PLACE_TEAM_BET_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: tg?.initData || '', game, color, amount })
+      body: JSON.stringify({ initData: tg?.initData || '', game: 'team_battle', amount, color: teamSelectedColor })
     });
     const data = await res.json();
     if (!res.ok) {
-      const errorMessages = {
-        'INSUFFICIENT_BALANCE': "Stars yetarli emas!",
-        'GAME_NOT_ACCEPTING_BETS': "O'yin jarayoni kutilmoqda, yangi davr boshlanishini kuting!",
-        'ALREADY_IN_OTHER_TEAM': "Siz bu davrda boshqa jamoadasiz, rang almashtirib bo'lmaydi.",
-        'invalid_color': "Rang noto'g'ri tanlandi.",
-        'MIN_BET': 'Minimal tikish 10 ★',
-        'invalid_auth': "Sessiya tasdiqlanmadi. Ilovani qayta oching.",
-      };
-      alert(errorMessages[data.error] || "Xatolik yuz berdi!");
+      if (data.error === 'INSUFFICIENT_BALANCE') alert("Stars yetarli emas!");
+      else if (data.error === 'GAME_NOT_ACCEPTING_BETS') alert("O'yin jarayoni kutilmoqda, yangi davr boshlanishini kuting!");
+      else if (data.error === 'COLOR_LOCKED') alert("Siz bu raundda allaqachon boshqa rangga tikkansiz!");
+      else alert("Xatolik yuz berdi!");
       return;
     }
     currentUserData.balance -= amount;
@@ -2949,57 +2895,107 @@ async function teamPlaceBet(game) {
   } catch (e) {
     console.error(e);
     alert("Xatolik yuz berdi!");
-  } finally {
-    btn.disabled = false;
   }
+  finally { btn.disabled = false; }
 }
 
-// O'YIN TARIXI: game_history_team_hockey / game_history_team_roll
-// kolleksiyalarini o'qiydi (faqat o'qish — yozish resolve_team_round()
-// ichida, faqat serverda amalga oshadi).
-async function openTeamGameHistory(game) {
-  const modal = document.getElementById('historyModal');
-  const content = document.getElementById('historyContent');
-  content.innerHTML = '<p class="empty" style="font-size:13px;">Yuklanmoqda...</p>';
-  modal.classList.add('active');
+// Tosh uchishi — hokkeydagi runPuckFlight() bilan bir xil fizika
+// (game_logic.py: simulate_puck_landing() serverda ham AYNAN shu formula
+// bilan hisoblanadi), faqat zonalar endi 3ta doimiy ustun (rang) va tosh
+// qaysi ustunga tushsa, o'sha rang g'olib bo'ladi.
+function startTeamStoneAnimation(seed) {
+  if (teamStoneInterval) clearInterval(teamStoneInterval);
 
-  try {
-    const snap = await db.collection(`game_history_${game}`)
-      .orderBy('game_number', 'desc')
-      .limit(10)
-      .get();
+  const arena = document.getElementById('teamArena');
+  const stone = document.getElementById('teamStone');
+  const cd = document.getElementById('teamCountdown');
 
-    if (snap.empty) {
-      content.innerHTML = '<p class="empty" style="font-size:13px;">Hali tugallangan o\'yin yo\'q</p>';
+  const arenaWidth = arena.clientWidth;
+  const arenaHeight = arena.clientHeight;
+  const angle = seed ? seed.angle : Math.random() * 360;
+
+  const toPx = (px, py) => ({ left: (px / 100) * arenaWidth, top: (py / 100) * arenaHeight });
+
+  stone.style.left = `${(arenaWidth / 2)}px`;
+  stone.style.top = `${(arenaHeight / 2)}px`;
+  stone.style.display = 'block';
+
+  const flightDuration = 7000;
+  const tickMs = 1000 / 60;
+  const totalSteps = Math.round(flightDuration / tickMs);
+  const rad = 3.3;
+  let speed = 11.5;
+  let vx = Math.cos(angle * Math.PI / 180) * speed;
+  let vy = Math.sin(angle * Math.PI / 180) * speed;
+
+  const path = new Array(totalSteps);
+  let px = 50, py = 50;
+  for (let i = 0; i < totalSteps; i++) {
+    const stepProgress = i / totalSteps;
+    const currentFriction = 0.992 - (stepProgress * 0.012);
+    px += vx;
+    py += vy;
+    if (px - rad <= 0) { px = rad; vx *= -1; }
+    if (px + rad >= 100) { px = 100 - rad; vx *= -1; }
+    if (py - rad <= 0) { py = rad; vy *= -1; }
+    if (py + rad >= 100) { py = 100 - rad; vy *= -1; }
+    vx *= currentFriction;
+    vy *= currentFriction;
+    path[i] = { x: px, y: py };
+  }
+
+  const finalPos = path[path.length - 1];
+  const winnerColor = (teamState.winner && teamState.winner.color) || TEAM_COLORS[0];
+
+  const flightStart = Date.now();
+  cd.textContent = "Tosh uchmoqda...";
+  teamStoneInterval = setInterval(() => {
+    const elapsed = Date.now() - flightStart;
+    const progress = elapsed / flightDuration;
+
+    if (progress >= 1) {
+      clearInterval(teamStoneInterval);
+      const endPx = toPx(finalPos.x, finalPos.y);
+      stone.style.left = `${endPx.left}px`;
+      stone.style.top = `${endPx.top}px`;
+      finishTeamBattleRound(winnerColor);
       return;
     }
 
-    let html = '';
-    snap.forEach(doc => {
-      const r = doc.data();
-      const winnerMeta = TEAM_COLOR_META[r.winner_color] || { label: r.winner_color, emoji: '' };
-      html += `<div class="history-round">
-        <div class="history-round-title">O'yin #${r.game_number} — Bank: ★${r.pot} — G'olib: ${winnerMeta.emoji} ${winnerMeta.label}</div>
-        ${Object.keys(TEAM_COLOR_META).map((c) => {
-          const cData = (r.colors || {})[c] || { stars: 0, players: [] };
-          if (!cData.players || !cData.players.length) return '';
-          const players = [...cData.players].sort((a, b) => (b.stars || 0) - (a.stars || 0));
-          return `<div style="font-size:11px; color:var(--text-dim); margin:8px 0 4px;">${TEAM_COLOR_META[c].emoji} ${TEAM_COLOR_META[c].label} — ★${cData.stars} (${cData.chance}%)</div>
-          ${players.map(p => `
-            <div class="history-player-row ${p.won ? 'is-winner' : ''}">
-              <img class="avatar" src="${p.photo || avatarFallback(p.username)}" onerror="this.src=avatarFallback('${p.username}')">
-              <div class="uname">${p.username}${p.won ? ' 🏆' : ''}</div>
-              <div class="stake mono">★${p.stars}</div>
-              <div class="won mono ${p.won ? '' : 'zero'}">${p.won ? '+' + p.won : '—'}</div>
-            </div>`).join('')}`;
-        }).join('')}
-      </div>`;
-    });
-    content.innerHTML = html;
-  } catch (e) {
-    console.error(e);
-    content.innerHTML = '<p class="empty" style="font-size:13px;">Yuklab bo\'lmadi</p>';
+    const frameIndex = Math.min(totalSteps - 1, Math.floor(progress * totalSteps));
+    const framePos = path[frameIndex];
+    const framePx = toPx(framePos.x, framePos.y);
+    stone.style.left = `${framePx.left}px`;
+    stone.style.top = `${framePx.top}px`;
+
+    const remainingSec = Math.ceil((flightDuration - elapsed) / 1000);
+    cd.textContent = `Tosh uchmoqda (${remainingSec}s)...`;
+  }, tickMs);
+}
+
+async function finishTeamBattleRound(winnerColor) {
+  const cd = document.getElementById('teamCountdown');
+  cd.textContent = "O'yin tugadi!";
+
+  const banner = document.getElementById('teamWinnerBanner');
+  banner.textContent = `${TEAM_COLOR_LABEL2[winnerColor] || winnerColor} yutdi! Bank: ★ ${teamRoundPotSnapshot}`;
+  banner.classList.add('show');
+
+  // MUHIM: pot to'lovi endi BUTUNLAY serverda, har bir g'olib rangga
+  // tikkan odamga ULUSHIGA QARAB (pari-mutuel) amalga oshirilgan. Bu yerda
+  // faqat o'zimiz yutgan bo'lsak, UI'ni yangilaymiz.
+  const payouts = (teamState.winner && teamState.winner.payouts) || {};
+  const myPayout = payouts[String(tgUser.id)];
+  if (myPayout) {
+    currentUserData.balance += myPayout;
+    currentUserData.total_won = (currentUserData.total_won || 0) + myPayout;
+    document.getElementById('topBalance').textContent = currentUserData.balance;
   }
+
+  setTimeout(() => {
+    banner.classList.remove('show');
+    resetTeamStoneVisual();
+  }, 4000);
 }
 
 // Boshlanishida captcha tekshiriladi
