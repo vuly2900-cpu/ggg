@@ -1674,6 +1674,8 @@ function openGame(name) {
 
 // ==================== MULTIPLAYER XOKKEY DYNAMIC ZOOM FIZIKASI ====================
 let hockeyState = { status: 'idle', players: [], pot: 0, game_number: 1 };
+// Animatsiya boshida "muzlatilgan" pot qiymati — pastdagi izohga qarang.
+let hockeyRoundPotSnapshot = 0;
 let hockeyZoneRects = null;
 let currentUnsubscribe = null;
 let physicsInterval = null;
@@ -1725,6 +1727,14 @@ function initHockeyPage() {
       } else if (hockeyState.status === 'spinning_visual') {
         if (bettingCountdownInterval) { clearInterval(bettingCountdownInterval); bettingCountdownInterval = null; }
         if (prevStatus !== 'spinning_visual') {
+          // MUHIM: pot va g'olibni HOZIROQ "muzlatib" olamiz. Animatsiya
+          // ~9s davom etadi va bu vaqt ichida server ham raundni
+          // 'cooldown'ga o'tkazib pot'ni 0'ga tushiradi — agar animatsiya
+          // oxirida hockeyState.pot'ni to'g'ridan-to'g'ri o'qisak, ba'zida
+          // u allaqachon 0 bo'lib qolgan bo'ladi (shu sabab "0 ★ yutdi"
+          // ko'rinishi mumkin edi). Shuning uchun qiymatlarni shu yerda,
+          // raund hali 'spinning_visual' bo'lgan paytda saqlab qo'yamiz.
+          hockeyRoundPotSnapshot = hockeyState.pot || 0;
           startPuckPhysicsAnimation(hockeyState.puckSeed);
         }
       } else if (hockeyState.status === 'cooldown') {
@@ -1943,7 +1953,12 @@ async function finishHockeyRound(winner) {
   cd.textContent = 'O\'yin tugadi!';
   
   const banner = document.getElementById('hockeyWinnerBanner');
-  banner.textContent = `${winner.username} ${hockeyState.pot} ★ yutdi!`;
+  // MUHIM: hockeyState.pot O'RNIGA animatsiya boshida saqlab qo'yilgan
+  // hockeyRoundPotSnapshot ishlatiladi — chunki hockeyState real vaqtda
+  // Firestore orqali yangilanib turadi va animatsiya tugagan payt server
+  // allaqachon raundni 'cooldown'ga o'tkazib pot'ni 0'ga tushirgan bo'lishi
+  // mumkin (bu "0 ★ yutdi" xatosining sababi edi).
+  banner.textContent = `${winner.username} ${hockeyRoundPotSnapshot} ★ yutdi!`;
   banner.classList.add('show');
 
   // MUHIM: pot to'lovi endi BUTUNLAY serverda amalga oshirilgan (status
@@ -1951,7 +1966,7 @@ async function finishHockeyRound(winner) {
   // Shu sababli bu yerda hech qanday balans yozuvi kerak emas — faqat
   // o'zimizning UI'imizni yangilaymiz, agar biz g'olib bo'lsak.
   if (winner.id === tgUser.id) {
-    const potAtWin = hockeyState.pot;
+    const potAtWin = hockeyRoundPotSnapshot;
     currentUserData.balance += potAtWin;
     currentUserData.total_won = (currentUserData.total_won || 0) + potAtWin;
     document.getElementById('topBalance').textContent = currentUserData.balance;
@@ -2233,6 +2248,7 @@ function renderHockeyPlayers() {
 
 // ==================== BARABAN (DRUM/WHEEL) O'YINI ====================
 let drumState = { status: 'idle', players: [], pot: 0, game_number: 1 };
+let drumRoundPotSnapshot = 0;
 let drumSegmentsData = null; // [{player, startDeg, endDeg}]
 let drumBettingCountdownInterval = null;
 let drumSpinTimeout = null;
@@ -2284,6 +2300,10 @@ function initDrumPage() {
         if (drumBettingCountdownInterval) { clearInterval(drumBettingCountdownInterval); drumBettingCountdownInterval = null; }
         if (drumCooldownTimeout) { clearTimeout(drumCooldownTimeout); drumCooldownTimeout = null; }
         if (prevStatus !== 'spinning_visual') {
+          // Hokkeydagi kabi: pot'ni animatsiya boshida muzlatib olamiz,
+          // aks holda server 'cooldown'ga o'tib pot'ni 0'ga tushirgach,
+          // banner "0 ★ yutdi" deb ko'rsatishi mumkin edi.
+          drumRoundPotSnapshot = drumState.pot || 0;
           startDrumSpinAnimation(drumState.drumSeed);
         }
       } else if (drumState.status === 'cooldown') {
@@ -2442,13 +2462,13 @@ async function finishDrumRound(winner) {
   cd.textContent = "O'yin tugadi!";
 
   const banner = document.getElementById('drumWinnerBanner');
-  banner.textContent = `${winner.username} ${drumState.pot} ★ yutdi!`;
+  banner.textContent = `${winner.username} ${drumRoundPotSnapshot} ★ yutdi!`;
   banner.classList.add('show');
 
   // MUHIM: pot to'lovi va raund o'tishi (cooldown -> idle) endi BUTUNLAY
   // serverda amalga oshiriladi. Bu yerda faqat o'z UI'imizni yangilaymiz.
   if (winner.id === tgUser.id) {
-    const potAtWin = drumState.pot;
+    const potAtWin = drumRoundPotSnapshot;
     currentUserData.balance += potAtWin;
     currentUserData.total_won = (currentUserData.total_won || 0) + potAtWin;
     document.getElementById('topBalance').textContent = currentUserData.balance;
