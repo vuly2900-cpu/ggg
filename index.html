@@ -429,6 +429,26 @@
     border: 1px solid var(--border); color: var(--text); width: 28px; height: 28px;
     border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
   }
+
+  /* O'YIN TARIXI */
+  .history-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 15px; cursor: pointer; margin-left: 8px;
+  }
+  .history-round { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .history-round:last-child { border-bottom: none; margin-bottom: 0; }
+  .history-round-title { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+  .history-player-row {
+    display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px;
+  }
+  .history-player-row .avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+  .history-player-row .uname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-player-row .stake { color: var(--text-dim); width: 50px; text-align: right; }
+  .history-player-row .chance { color: var(--text-dim); width: 46px; text-align: right; }
+  .history-player-row .won { width: 60px; text-align: right; font-weight: 600; }
+  .history-player-row.is-winner { color: var(--success); }
+  .history-player-row .won.zero { color: var(--text-dim); font-weight: 400; }
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -506,6 +526,7 @@
     <div class="hockey-topbar">
       <button class="hockey-back" onclick="goTo('play')">‹</button>
       <div class="game-number-badge mono" id="gameNumberLabel">O'yin #1</div>
+      <button class="history-btn" onclick="openGameHistory('hockey')" title="O'yin tarixi">🕒</button>
     </div>
     <div class="hockey-winner-banner" id="hockeyWinnerBanner"></div>
 
@@ -548,6 +569,7 @@
     <div class="hockey-topbar">
       <button class="hockey-back" onclick="goTo('play')">‹</button>
       <div class="game-number-badge mono" id="drumGameNumberLabel">O'yin #1</div>
+      <button class="history-btn" onclick="openGameHistory('drum')" title="O'yin tarixi">🕒</button>
     </div>
     <div class="hockey-winner-banner" id="drumWinnerBanner"></div>
 
@@ -660,6 +682,17 @@
     <button class="btn" id="adminOpenerBtn" style="width:100%; display:none; background:var(--surface-2); border:1px solid var(--border); color:var(--gold); padding:12px; font-size:14px;" onclick="toggleAdminModal(true)">⚙️ Admin Panelni ochish</button>
   </section>
 </main>
+
+<!-- O'YIN TARIXI MODAL -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal-window">
+    <button class="modal-close" onclick="closeGameHistory()">×</button>
+    <h2 style="font-size:16px; font-weight:700; margin-bottom:14px;">🕒 So'nggi 10 ta o'yin</h2>
+    <div id="historyContent">
+      <p class="empty" style="font-size:13px;">Yuklanmoqda...</p>
+    </div>
+  </div>
+</div>
 
 <!-- ... Admin boshqaruv paneli ... -->
 <div class="modal-overlay" id="adminModal">
@@ -1377,6 +1410,53 @@ function toggleAdminModal(show) {
   const modal = document.getElementById('adminModal');
   if(show) { modal.classList.add('active'); loadAdminTasksList(); }
   else modal.classList.remove('active');
+}
+
+// MUHIM: tarix faqat O'QISH uchun ishlatiladi (Firestore Rules'da
+// game_history_hockey / game_history_drum uchun `read: if true` bor,
+// yozish esa faqat backend orqali, resolve_round() ichida amalga oshadi).
+async function openGameHistory(game) {
+  const modal = document.getElementById('historyModal');
+  const content = document.getElementById('historyContent');
+  content.innerHTML = '<p class="empty" style="font-size:13px;">Yuklanmoqda...</p>';
+  modal.classList.add('active');
+
+  try {
+    const snap = await db.collection(`game_history_${game}`)
+      .orderBy('game_number', 'desc')
+      .limit(10)
+      .get();
+
+    if (snap.empty) {
+      content.innerHTML = '<p class="empty" style="font-size:13px;">Hali tugallangan o\'yin yo\'q</p>';
+      return;
+    }
+
+    let html = '';
+    snap.forEach(doc => {
+      const r = doc.data();
+      const players = [...(r.players || [])].sort((a, b) => (b.stars || 0) - (a.stars || 0));
+      html += `<div class="history-round">
+        <div class="history-round-title">O'yin #${r.game_number} — Bank: ★ ${r.pot}</div>
+        ${players.map(p => `
+          <div class="history-player-row ${p.id === r.winner_id ? 'is-winner' : ''}">
+            <img class="avatar" src="${p.photo || avatarFallback(p.username)}" onerror="this.src=avatarFallback('${p.username}')">
+            <div class="uname">${p.username}${p.id === r.winner_id ? ' 🏆' : ''}</div>
+            <div class="stake mono">★${p.stars}</div>
+            <div class="chance mono">${p.chance}%</div>
+            <div class="won mono ${p.won ? '' : 'zero'}">${p.won ? '+' + p.won : '—'}</div>
+          </div>`).join('')}
+      </div>`;
+    });
+    content.innerHTML = html;
+  } catch (e) {
+    console.error(e);
+    content.innerHTML = '<p class="empty" style="font-size:13px;">Yuklab bo\'lmadi</p>';
+  }
+}
+
+function closeGameHistory() {
+  document.getElementById('historyModal').classList.remove('active');
 }
 
 function hockeySetAmount(v, btn) {
