@@ -1875,33 +1875,14 @@ function startPuckPhysicsAnimation(seed) {
     let vx = Math.cos(angle * Math.PI / 180) * speed;
     let vy = Math.sin(angle * Math.PI / 180) * speed;
 
-    const zones = hockeyState.players;
-    // G'OLIB SERVERDA ANIQLANADI VA PUL TO'LANADI (stavka ulushiga
-    // proportsional ehtimollik bilan).
-    let winner = hockeyState.winner || zones[zones.length - 1];
-
-    // MUHIM TUZATISH: avval tosh TO'LIQ erkin fizika bo'yicha uchib,
-    // qayerda to'xtasa O'SHA YERDAGI o'yinchi "yutdi" deb ko'rsatilardi —
-    // lekin g'olib serverda ALLAQACHON tanlangan va pul shungа
-    // to'langan bo'ladi. Natijada tosh bittasining zonasiga tushib,
-    // banner boshqa odam yutganini ko'rsatishi mumkin edi. Endi tosh
-    // avval erkin sakrab-uchadi (faqat vizual effekt uchun), so'ng
-    // parvozning oxirgi qismida ANIQ g'olib zonasi ichidagi nuqtaga
-    // silliq yo'naltiriladi — shu tufayli tosh doim aynan e'lon
-    // qilinayotgan g'olib zonasida to'xtaydi.
-    const winnerZone = (hockeyZoneRects || []).find(z => z.player && z.player.id === winner.id);
-    const targetPoint = pickHockeyZoneLandingPoint(winnerZone, rad);
-
-    // Parvozning taxminan 60%-i — erkin, oldindan belgilanmagan sakrash
-    // (faqat ko'z-ko'ngil uchun animatsiya, natijaga ta'sir qilmaydi).
-    const bounceSteps = Math.max(1, Math.min(totalSteps - 1, Math.round(totalSteps * 0.6)));
-
     // Butun parvoz yo'li OLDINDAN, bitta sinxron siklda hisoblab chiqiladi
     // (real vaqt kechikishiga bog'liq bo'lmagan holda). Shu tufayli fizika
-    // barcha qurilmalarda aynan bir xil bo'ladi.
+    // barcha qurilmalarda aynan bir xil bo'ladi — hech qanday "tortish"
+    // yoki g'olibga majburan olib borish yo'q, tosh o'zi qayerda
+    // to'xtasa, natija o'sha yerdan olinadi.
     const path = new Array(totalSteps);
     let px = 50, py = 50;
-    for (let i = 0; i < bounceSteps; i++) {
+    for (let i = 0; i < totalSteps; i++) {
       const stepProgress = i / totalSteps;
       const currentFriction = 0.992 - (stepProgress * 0.012); // Tosh sekinroq tormozlanadi, ko'proq sakraydi
 
@@ -1919,21 +1900,14 @@ function startPuckPhysicsAnimation(seed) {
       path[i] = { x: px, y: py };
     }
 
-    // Parvozning qolgan qismi — tosh erkin sakrash tugagan nuqtadan
-    // g'olib zonasi ichidagi nuqtaga sekinlashib (ease-out) siljiydi.
-    const landingStart = path[bounceSteps - 1] || { x: px, y: py };
-    for (let i = bounceSteps; i < totalSteps; i++) {
-      const t = (i - bounceSteps) / Math.max(1, (totalSteps - bounceSteps - 1));
-      const eased = 1 - Math.pow(1 - t, 3);
-      path[i] = {
-        x: landingStart.x + (targetPoint.x - landingStart.x) * eased,
-        y: landingStart.y + (targetPoint.y - landingStart.y) * eased
-      };
-    }
-
-    // Tosh haqiqatda to'xtagan (parvoz oxiridagi) nuqta — bu doim
-    // e'lon qilinayotgan g'olibning zonasi ichida bo'ladi.
+    // Tosh haqiqatda to'xtagan (parvoz oxiridagi) nuqta
     const finalPos = path[path.length - 1];
+
+    const zones = hockeyState.players;
+    // G'OLIB ENDI SERVERDA ANIQLANADI VA PUL TO'LANADI (stavka ulushiga
+    // proportsional ehtimollik bilan) — bu yerdagi zona/fizika animatsiyasi
+    // FAQAT vizual effekt, natijaga hech qanday ta'sir qilmaydi.
+    let winner = hockeyState.winner || zones[zones.length - 1];
 
     const flightStart = Date.now();
     physicsInterval = setInterval(() => {
@@ -2144,43 +2118,6 @@ function polygonCentroid(poly) {
   let x = 0, y = 0;
   poly.forEach(p => { x += p[0]; y += p[1]; });
   return [x / poly.length, y / poly.length];
-}
-
-// Xokkey toshi majburiy to'xtashi kerak bo'lgan, g'olib zonasi ICHIDAGI
-// nuqtani tanlaydi (rad — toshning arenaga nisbatan foizdagi radiusi).
-// Zona qanday shaklda bo'lishidan (to'g'ri burchakli yoki qiya/poligon)
-// qat'i nazar ishlaydi va natija doim shu zona ichida bo'lishini kafolatlaydi.
-function pickHockeyZoneLandingPoint(zone, rad) {
-  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-  if (!zone) return { x: 50, y: 50 };
-
-  if (zone.polygon && zone.polygon.length >= 3) {
-    const poly = zone.polygon;
-    let minX = 100, maxX = 0, minY = 100, maxY = 0;
-    poly.forEach(p => {
-      minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]);
-      minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]);
-    });
-    for (let attempt = 0; attempt < 30; attempt++) {
-      const x = minX + Math.random() * (maxX - minX);
-      const y = minY + Math.random() * (maxY - minY);
-      if (pointInPolygon([x, y], poly)) {
-        return { x: clamp(x, rad, 100 - rad), y: clamp(y, rad, 100 - rad) };
-      }
-    }
-    const c = polygonCentroid(poly);
-    return { x: clamp(c[0], rad, 100 - rad), y: clamp(c[1], rad, 100 - rad) };
-  }
-
-  if (typeof zone.x === 'number' && typeof zone.w === 'number') {
-    const padX = Math.min(zone.w / 2, zone.w * 0.2 + rad * 0.3);
-    const padY = Math.min(zone.h / 2, zone.h * 0.2 + rad * 0.3);
-    const x = zone.x + padX + Math.random() * Math.max(0, zone.w - 2 * padX);
-    const y = zone.y + padY + Math.random() * Math.max(0, zone.h - 2 * padY);
-    return { x: clamp(x, rad, 100 - rad), y: clamp(y, rad, 100 - rad) };
-  }
-
-  return { x: 50, y: 50 };
 }
 
 // Nuqta ko'pburchak ichidami — g'olibni qiya zonalarda aniqlash uchun.
