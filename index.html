@@ -378,19 +378,21 @@
   .team-color-btn[data-color="green"] .dot{background:#33C481;}
   .team-color-btn[data-color="blue"] .dot{background:#4A9EE8;}
 
-  .team-zones-container{position:absolute; inset:0; display:flex;}
+  .team-zones-container{position:absolute; inset:0;}
   .team-zone{
-    position:relative; height:100%; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:6px; overflow:hidden;
-    transition:width .4s ease; border-right:1px solid rgba(255,255,255,.08);
+    position:absolute; left:0; top:0; width:100%; height:100%;
+    transition:clip-path .4s ease;
   }
-  .team-zone:last-child{border-right:none;}
-  .team-zone[data-color="red"]{background:linear-gradient(180deg,#E5544B44,#E5544B11);}
-  .team-zone[data-color="green"]{background:linear-gradient(180deg,#33C48144,#33C48111);}
-  .team-zone[data-color="blue"]{background:linear-gradient(180deg,#4A9EE844,#4A9EE811);}
-  .team-zone .zone-lbl{font-size:11px; font-weight:700; text-transform:uppercase; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6);}
-  .team-zone .zone-amt{font-size:13px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); font-family:'JetBrains Mono',monospace;}
-  .team-zone .zone-avatars{display:flex; flex-wrap:wrap; gap:3px; justify-content:center; max-width:90%;}
+  .team-zone[data-color="red"]{background:linear-gradient(180deg,#E5544B55,#E5544B22);}
+  .team-zone[data-color="green"]{background:linear-gradient(180deg,#33C48155,#33C48122);}
+  .team-zone[data-color="blue"]{background:linear-gradient(180deg,#4A9EE855,#4A9EE822);}
+  .team-zone .zone-content{
+    position:absolute; transform:translate(-50%,-50%);
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+  }
+  .team-zone .zone-lbl{font-size:11px; font-weight:700; text-transform:uppercase; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.7);}
+  .team-zone .zone-amt{font-size:13px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.7); font-family:'JetBrains Mono',monospace;}
+  .team-zone .zone-avatars{display:flex; flex-wrap:wrap; gap:3px; justify-content:center; max-width:120px;}
   .team-zone .zone-avatars img{width:22px; height:22px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,.5);}
 
   .team-stone{
@@ -1554,13 +1556,17 @@ async function openGameHistory(game) {
     let html = '';
     snap.forEach(doc => {
       const r = doc.data();
-      const players = [...(r.players || [])].sort((a, b) => (b.stars || 0) - (a.stars || 0));
       const isTeamBattle = game === 'team_battle';
+      let players = [...(r.players || [])].sort((a, b) => (b.stars || 0) - (a.stars || 0));
+      // Team Battle'da yutgan RANGGA tikkan HAMMA odam pul oladi, shuning
+      // uchun tarixda faqat haqiqatan yutgan (payout olgan) odamlar
+      // ko'rsatiladi — yutqazgan ranglarga tikkanlar ro'yxatda chiqmaydi.
+      if (isTeamBattle) players = players.filter(p => p.won && p.won > 0);
       const titleExtra = isTeamBattle ? ` — G'olib: ${TEAM_COLOR_LABEL[r.winner_color] || r.winner_color}` : '';
       html += `<div class="history-round">
         <div class="history-round-title">O'yin #${r.game_number} — Bank: ★ ${r.pot}${titleExtra}</div>
         ${players.map(p => {
-          const isWinner = isTeamBattle ? (p.color === r.winner_color) : (p.id === r.winner_id);
+          const isWinner = isTeamBattle ? true : (p.id === r.winner_id);
           const colorDot = isTeamBattle ? `<span class="badge-color" data-color="${p.color}"></span>` : '';
           return `
           <div class="history-player-row ${isWinner ? 'is-winner' : ''}">
@@ -2817,22 +2823,45 @@ function computeTeamZoneWidths() {
   return widths;
 }
 
+// Hokkeydagi kabi arena TEPADAN (50, 0 nuqtadan) pastga qarab yoyiladigan
+// 3ta uchburchak/qanot shaklidagi zonaga bo'linadi — chapdan o'ngga qizil,
+// yashil, ko'k tartibida. Pastki chekka bo'ylab har bir rangning kengligi
+// o'sha rangga tikilgan stars ulushiga mutanosib. MUHIM: bu formula
+// game_logic.py: pick_team_battle_winner() dagi bilan MATEMATIK JIHATDAN
+// ANIQ bir xil — shu tufayli tosh qayerga tushgani va ko'rsatilgan zona
+// har doim mos keladi.
+function computeTeamFanPolygons(widths) {
+  const b1 = widths.red;
+  const b2 = b1 + widths.green;
+  return {
+    red: [[0, 0], [50, 0], [b1, 100], [0, 100]],
+    green: [[50, 0], [b2, 100], [b1, 100]],
+    blue: [[50, 0], [100, 0], [100, 100], [b2, 100]],
+  };
+}
+
 function renderTeamBattleArena() {
   const zonesEl = document.getElementById('teamZones');
   const widths = computeTeamZoneWidths();
+  const polygons = computeTeamFanPolygons(widths);
   const players = teamState.players || [];
 
   zonesEl.innerHTML = TEAM_COLORS.map(c => {
+    const poly = polygons[c];
+    const clip = `polygon(${poly.map(pt => `${pt[0].toFixed(2)}% ${pt[1].toFixed(2)}%`).join(', ')})`;
+    const centroid = polygonCentroid(poly);
     const colorPlayers = players.filter(p => p.color === c);
     const amt = (teamState.colorTotals && teamState.colorTotals[c]) || 0;
     const avatarsHtml = colorPlayers.slice(0, 8).map(p => `
       <img src="${p.photo || avatarFallback(p.username)}" onerror="this.src=avatarFallback('${p.username}')">
     `).join('');
     return `
-      <div class="team-zone" data-color="${c}" style="width:${widths[c]}%;">
-        <span class="zone-lbl">${TEAM_COLOR_LABEL2[c]}</span>
-        <span class="zone-amt">★ ${amt}</span>
-        <div class="zone-avatars">${avatarsHtml}</div>
+      <div class="team-zone" data-color="${c}" style="clip-path:${clip};">
+        <div class="zone-content" style="left:${centroid[0].toFixed(2)}%; top:${centroid[1].toFixed(2)}%;">
+          <span class="zone-lbl">${TEAM_COLOR_LABEL2[c]}</span>
+          <span class="zone-amt">★ ${amt}</span>
+          <div class="zone-avatars">${avatarsHtml}</div>
+        </div>
       </div>`;
   }).join('');
 }
