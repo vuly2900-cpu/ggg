@@ -900,10 +900,13 @@ let currentGeneratedCaptcha = "";
 // SUBSCRIPTION_API_URL — bot serveringizdagi /api/check_subscription endpointi
 // (bot.py da API_PORT bilan ochilgan, https orqali ochiq bo'lishi kerak)
 const SUBSCRIPTION_API_URL = 'https://web-production-448b33.up.railway.app/api/check_subscription';
+// INIT_USER_API_URL — foydalanuvchi profilini serverda (Admin SDK orqali)
+// yaratadi/oladi. Firestore Rules clientdan to'g'ridan-to'g'ri yozishni
+// taqiqlagani uchun profil endi shu yerda, backendda yaratiladi.
+const INIT_USER_API_URL = 'https://web-production-448b33.up.railway.app/api/init_user';
 // OPEN_CASE_API_URL — bot serveringizdagi /api/open_case endpointi.
 // Balans endi shu endpoint orqali, faqat serverda o'zgaradi (Firestore Rules
 // clientdan to'g'ridan-to'g'ri yozishni taqiqlaydi).
-const INIT_USER_API_URL = 'https://web-production-448b33.up.railway.app/api/init_user';
 const OPEN_CASE_API_URL = 'https://web-production-448b33.up.railway.app/api/open_case';
 const REFERRAL_API_URL = 'https://web-production-448b33.up.railway.app/api/referral_reward';
 const REDEEM_PROMO_API_URL = 'https://web-production-448b33.up.railway.app/api/redeem_promo';
@@ -994,36 +997,37 @@ async function initUser() {
   let refBy = tg?.initDataUnsafe?.start_param?.trim() || null;
   if (refBy === String(tgUser.id)) refBy = null;
 
-  // MUHIM: foydalanuvchi hujjati endi bu yerda to'g'ridan-to'g'ri Firestore'ga
-  // yozilmaydi (userRef.set(...) orqali) — Firestore Security Rules "users"
-  // kolleksiyasiga clientdan yozishni butunlay taqiqlaydi (allow write: if false),
-  // shu sababli yangi foydalanuvchilarda bu yozuv PERMISSION_DENIED bilan
-  // muvaffaqiyatsiz tugab, hujjat umuman yaratilmay qolar edi. Natijada
-  // stars tikish, vazifa bajarish va case ochish har doim "USER_NOT_FOUND"
-  // bilan bloklanardi. Endi hujjatni backend (Admin SDK, Rules'ni chetlab
-  // o'tadi) orqali yaratamiz/o'qiymiz.
+  // MUHIM: profil endi backendda (Admin SDK orqali) yaratiladi/olinadi —
+  // Firestore Rules clientdan to'g'ridan-to'g'ri yozishni taqiqlaydi, shuning
+  // uchun bu yerda db.collection('users')...set()/update() ISHLATILMAYDI.
+  let res, data;
   try {
-    const res = await fetch(INIT_USER_API_URL, {
+    res = await fetch(INIT_USER_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: tg?.initData || '', referredBy: refBy })
+      body: JSON.stringify({ initData: tg?.initData || '', refBy })
     });
-    const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || 'init_user_failed');
-
-    currentUserData = data.user;
-
-    if (data.created && refBy) {
-      try {
-        await rewardReferrer(refBy);
-      } catch (e) {
-        console.error('Referral reward failed:', e);
-      }
-    }
+    data = await res.json();
   } catch (e) {
-    console.error('initUser xatoligi:', e);
+    console.error('initUser fetch xatoligi:', e);
     alert("Foydalanuvchi ma'lumotlarini yuklashda xatolik yuz berdi. Internetni tekshirib, qayta urinib ko'ring.");
     return;
+  }
+
+  if (!res.ok || !data?.ok) {
+    console.error('initUser server xatoligi:', data);
+    alert("Foydalanuvchi ma'lumotlarini yuklashda xatolik yuz berdi. Internetni tekshirib, qayta urinib ko'ring.");
+    return;
+  }
+
+  currentUserData = data.user;
+
+  if (data.created && refBy) {
+    try {
+      await rewardReferrer(refBy);
+    } catch (e) {
+      console.error('Referral reward failed:', e);
+    }
   }
 
   document.getElementById('topBalance').textContent = currentUserData.balance;
